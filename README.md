@@ -1,9 +1,10 @@
-EZTRANS
+# EZTRANS
 
 A mimimal LAM transformation package
 
 installation (on kili):
 
+```
 module load foss CMake
 export FC=mpif90
 mkdir -p build/eztrans
@@ -12,3 +13,9 @@ rm -rf ../../build/eztrans/*
 cmake -DCMAKE_INSTALL_PREFIX=../../install/eztrans ../../sources/eztrans
 make
 make install
+```
+
+TODO:
+* introduce FFT's
+* introduce profiling with drhook
+* check performance
