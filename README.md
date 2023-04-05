@@ -4,7 +4,7 @@ A mimimal LAM spectral transform package
 
 ## Introduction
 
-GPUs are powerfull but stupid. The underlying idea of this repository is that by reducing the spectral transforms to their core (transpositions + FFTs), they may be easier to port to GPUs and give better performance. Some features that are missing w.r.t. the full code:
+GPUs are powerful but stupid. The underlying idea of this repository is that by reducing the spectral transforms to their core (transpositions + FFTs), they may be easier to port to GPUs and give better performance. Some features that are missing w.r.t. the full code:
 * splitting of latitudes
 * splitting of longitudes
 * different types of fields (wind, vorticity/divergence, scalar fields)
