@@ -97,46 +97,4 @@ ex(1:eys)=mx
 
 end subroutine ellips
 
-subroutine test_ellips(mx,my)
-
-integer, intent(in) :: mx,my
-integer :: ex(my), ey(mx)
-integer :: ex2(my), ey2(mx)
-logical :: M(mx,my)
-integer :: jx, jy
-real :: kx, ky
-
-call ellips(mx,my,ex,ey)
-
-write (*,*) 'elliptic truncation for mx = ',mx,', my = ',my,':'
-!write (*,'(X,A,999I4)') 'ey = ',ey
-!write (*,'(X,A,999I4)') 'ex = ',ex
-
-M=.false.
-do jy=1,my
-  ky=real((jy-1)/2)/(my/2-1)
-  do jx=1,mx
-    kx=real((jx-1)/2)/(mx/2-1)
-	M(jx,jy)= sqrt(kx**2+ky**2) < 1.+1.e-6
-  enddo
-enddo
-
-do jx=1,mx
-  do jy=1,my
-    if ( M(jx,jy) ) then
-	  ey2(jx)=jy
-	  ex2(jy)=jx
-	endif
-  enddo
-enddo
-
-!write (*,'(X,A,999I4)') 'ey2 = ',ey2
-!write (*,'(X,A,999I4)') 'ex2 = ',ex2
-
-write (*,*) 'difference on ex: ',maxval(abs(ex-ex2))
-write (*,*) 'difference on ey: ',maxval(abs(ey-ey2))
-write (*,*) 'number of waves : ',sum(ex),' =? ',sum(ey)
-
-end subroutine test_ellips
-
 end module aux_mod

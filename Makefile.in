@@ -1,5 +1,5 @@
 FC=mpif90
-FOPTS=-fopenmp -O2 -g -fbacktrace -fbounds-check
+FOPTS=-fopenmp -O2 -g -fbacktrace -fbounds-check -fdefault-real-8
 
 INCS=
 LIBS=-lfftw3
