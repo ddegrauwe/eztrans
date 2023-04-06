@@ -1,4 +1,4 @@
-subroutine cleanup(config)
+subroutine eztrans_end(config)
 
 use mpi
 
@@ -34,4 +34,4 @@ deallocate(config%jproc_m)
 ! close output file
 close(unit=20)
 
-end subroutine cleanup
+end subroutine eztrans_end

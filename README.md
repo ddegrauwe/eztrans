@@ -27,6 +27,8 @@ make install
 
 ## TODO:
 * introduce FFTs
+* improve performance on OpenMP (and possibly OpenACC) by making sure that different threads (i.e. outer loops in filling send/recv buffers) *write* to different memory regions, rather than reading from different memory regions
 * introduce profiling with drhook
 * introduce unit tests for MPI_alltoallv, FFT, individual transpositions
 * check performance
+* if performance is promising, introduce derivatives, uvtovd. This will require to dynamically change nfld. Note that not all fields need to go to S space: if only derivatives are needed, L-space is sufficient.

@@ -1,9 +1,10 @@
-subroutine setup(config,nx,ny,nfld,nproc_A,nproc_B,truncation_order)
+subroutine eztrans_setup(config,nx,ny,nfld,nproc_A,nproc_B,truncation_order)
 
 use mpi
 
 use config_mod, only : config_type
 use aux_mod, only : distribute, ellips
+use fftw3_mod
 
 implicit none
 
@@ -199,5 +200,5 @@ call MPI_Comm_split(MPI_COMM_WORLD, config%my_proc_A, config%my_proc_B, config%m
 
 call flush(20)
 
-end subroutine setup
+end subroutine eztrans_setup
 
