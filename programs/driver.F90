@@ -30,7 +30,7 @@ nproc_A=3
 nproc_B=2
 truncation_order=1
 
-call setup(config,nx,ny,nfld,nproc_A,nproc_B,truncation_order)
+call eztrans_setup(config,nx,ny,nfld,nproc_A,nproc_B,truncation_order)
 
 allocate(fG(config%my_nx_l,config%my_ny_l,config%nfld))
 allocate(fL(config%nx+2,config%my_ny_l,config%my_nfld_l))
@@ -136,7 +136,7 @@ deallocate(fL)
 deallocate(fM)
 deallocate(fS)
 
-call cleanup(config)
+call eztrans_end(config)
 
 call mpi_finalize(ierr)
 

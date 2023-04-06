@@ -1,4 +1,4 @@
-program tester
+program run_tests
 
 use aux_mod
 
@@ -11,4 +11,4 @@ my=802
 
 call test_ellips(mx,my)
 
-end program tester
+end program run_tests

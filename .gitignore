@@ -1,0 +1,5 @@
+*.o
+*.mod
+src/libeztrans.a
+programs/driver
+test/run_tests

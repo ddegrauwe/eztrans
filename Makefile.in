@@ -1,0 +1,5 @@
+FC=mpif90
+FOPTS=-fopenmp -O2 -g -fbacktrace -fbounds-check
+
+INCS=
+LIBS=-lfftw3
