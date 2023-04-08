@@ -1,0 +1,7 @@
+FC=ftn
+FOPTS=-fopenmp -O2 -g -fbacktrace -fbounds-check -fdefault-real-8
+
+INCS=-I/users/dadegrau2/test/eztrans/install/fiat/module/fiat/
+LIBS=-lfftw3 -L/users/dadegrau2/test/eztrans/install/fiat/lib64/ -lfiat -lm -lrt -lstdc++
+
+

@@ -1,4 +1,4 @@
-include ../Makefile.in
+include ../Makefile.lumi.in
 
 OBJS=driver.o
 

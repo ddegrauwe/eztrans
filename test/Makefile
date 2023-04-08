@@ -1,4 +1,4 @@
-include ../Makefile.in
+include ../Makefile.lumi.in
 
 OBJS=tests_mod.o run_tests.o
 

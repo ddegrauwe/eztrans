@@ -1,4 +1,4 @@
-include ../Makefile.in
+include ../Makefile.lumi.in
 
 OBJS=aux_mod.o fftw3_mod.o config_mod.o trgtol_mod.o trltog_mod.o trltom_mod.o trmtol_mod.o trmtos_mod.o trstom_mod.o eztrans_setup.o eztrans_end.o
 
