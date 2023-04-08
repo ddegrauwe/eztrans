@@ -2,6 +2,7 @@ subroutine eztrans_setup(config,nx,ny,nfld,nproc_A,nproc_B,truncation_order)
 
 use mpi
 
+use yomhook   ,only : lhook,   dr_hook, jphook
 use config_mod, only : config_type
 use aux_mod, only : distribute, ellips
 use fftw3_mod
@@ -26,6 +27,9 @@ integer :: jx, jy, jj, jproc, jj_l
 integer :: nWM
 integer :: kx_i, kx_e
 character(len=1024) :: filename
+real(kind=jphook) :: zhook_handle, zhook_handle_t
+
+if (lhook) call DR_HOOK('eztrans_setup',0,zhook_handle)
 
 ! global dimensions
 config%nx=nx
@@ -199,6 +203,8 @@ call MPI_Comm_split(MPI_COMM_WORLD, config%my_proc_A, config%my_proc_B, config%m
 !write (20,'(X,A,9999I4)') '  jproc_m   = ',config%jproc_m(1:config%my_nm_l:4)
 
 call flush(20)
+
+if (lhook) call DR_HOOK('eztrans_setup',1,zhook_handle)
 
 end subroutine eztrans_setup
 

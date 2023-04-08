@@ -1,6 +1,7 @@
 module trgtol_mod
 
 use mpi
+use yomhook   ,only : lhook,   dr_hook, jphook
 
 use config_mod, only: config_type
 
@@ -27,6 +28,9 @@ integer :: senddispls(config%nproc_A)
 integer :: recvcounts(config%nproc_A)
 integer :: recvdispls(config%nproc_A)
 integer :: jproc, jfld, jx, jy, offset, ierr
+real(kind=jphook) :: zhook_handle, zhook_handle_t
+
+if (lhook) call DR_HOOK('trgtol',0,zhook_handle)
 
 ! calculate send counts and displacements
 do jproc=1,config%nproc_A
@@ -52,7 +56,9 @@ call mpi_alltoallv(fG, sendcounts, senddispls, MPI_FLOAT, &
  & config%mpi_comm_A, ierr)
  
 ! unpack recv buffer
-!$OMP PARALLEL DO PRIVATE(jproc,jfld,offset,jy) COLLAPSE(2)
+!$OMP PARALLEL PRIVATE(jproc,jfld,offset,jy,zhook_handle_t)
+if (lhook) call DR_HOOK('trgtol:recv_buffer',0,zhook_handle_t)
+!$OMP DO COLLAPSE(2)
 do jproc=1,config%nproc_A
   do jfld=1,config%my_nfld_l
     offset=recvdispls(jproc)+(jfld-1)*config%my_ny_l*config%nx_l(jproc)
@@ -62,7 +68,11 @@ do jproc=1,config%nproc_A
 	enddo
   enddo
 enddo
-!$OMP END PARALLEL DO
+!$OMP END DO
+if (lhook) call DR_HOOK('trgtol:recv_buffer',1,zhook_handle_t)
+!$OMP END PARALLEL
+
+if (lhook) call DR_HOOK('trgtol',1,zhook_handle)
 
 end subroutine trgtol
 

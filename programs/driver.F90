@@ -1,5 +1,6 @@
 program driver
 
+use yomhook   ,only : lhook,   dr_hook, jphook
 use config_mod, only : config_type
 use trgtol_mod, only : trgtol
 use trltom_mod, only : trltom
@@ -20,14 +21,17 @@ integer :: nproc_A, nproc_B
 integer :: truncation_order
 integer :: jfld, jx, jy
 integer :: ierr
+real(kind=jphook) :: zhook_handle, zhook_handle_t
 
 call mpi_init(ierr)
+
+if (lhook) call DR_HOOK('driver',0,zhook_handle)
 
 nx=80
 ny=60
 nfld=10
-nproc_A=3
-nproc_B=2
+nproc_A=1
+nproc_B=1
 truncation_order=1
 
 call eztrans_setup(config,nx,ny,nfld,nproc_A,nproc_B,truncation_order)
@@ -137,6 +141,8 @@ deallocate(fM)
 deallocate(fS)
 
 call eztrans_end(config)
+
+if (lhook) call DR_HOOK('driver',1,zhook_handle)
 
 call mpi_finalize(ierr)
 

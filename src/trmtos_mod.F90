@@ -1,6 +1,7 @@
 module trmtos_mod
 
 use mpi
+use yomhook   ,only : lhook,   dr_hook, jphook
 
 use config_mod, only: config_type
 
@@ -31,6 +32,9 @@ integer :: jproc, jfld, jx, jy, js, offset, jj
 integer :: ierr
 integer :: jproc_l(config%nfld)
 integer :: jfld_l(config%nfld)
+real(kind=jphook) :: zhook_handle, zhook_handle_t
+
+if (lhook) call DR_HOOK('trmtos',0,zhook_handle)
 
 ! calculate send counts and displacements
 do jproc=1,config%nproc_A
@@ -51,7 +55,9 @@ do jproc=2,config%nproc_A
 enddo
 
 ! pack send buffer
-!$OMP PARALLEL DO PRIVATE(jproc,jfld,offset,js,jx,jy) COLLAPSE(2)
+!$OMP PARALLEL PRIVATE(jproc,jfld,offset,js,jx,jy,zhook_handle_t)
+if (lhook) call DR_HOOK('trmtos:send_bufr',0,zhook_handle_t)
+!$OMP DO COLLAPSE(2)
 do jproc=1,config%nproc_A
   do jfld=1,config%my_nfld_l
     offset=senddispls(jproc)+(jfld-1)*config%ns_l(jproc)-config%jsi_l(jproc)+1
@@ -65,7 +71,9 @@ do jproc=1,config%nproc_A
 	enddo
   enddo
 enddo
-!$OMP END PARALLEL DO
+!$OMP END DO
+if (lhook) call DR_HOOK('trmtos:send_bufr',1,zhook_handle_t)
+!$OMP END PARALLEL
 
 ! communications
 call mpi_alltoallv(send_buffer, sendcounts, senddispls, MPI_FLOAT, &
@@ -79,14 +87,20 @@ do jproc=1,config%nproc_A
 enddo
 
 ! unpack recv buffer
-!$OMP PARALLEL DO PRIVATE(jfld,offset,js)
+!$OMP PARALLEL PRIVATE(jfld,offset,js,zhook_handle_t)
+if (lhook) call DR_HOOK('trmtos:recv_bufr',0,zhook_handle_t)
+!$OMP DO
 do jfld=1,config%nfld
   offset=recvdispls(jproc_l(jfld))+(jfld_l(jfld)-1)*config%my_ns_l
   do js=1,config%my_ns_l
     fS(js,jfld)=recv_buffer(offset+js)
   enddo
 enddo
-!$OMP END PARALLEL DO
+!$OMP END DO
+if (lhook) call DR_HOOK('trmtos:recv_bufr',1,zhook_handle_t)
+!$OMP END PARALLEL
+
+if (lhook) call DR_HOOK('trmtos',1,zhook_handle)
 
 end subroutine trmtos
 

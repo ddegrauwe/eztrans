@@ -1,6 +1,7 @@
 subroutine eztrans_end(config)
 
 use mpi
+use yomhook   ,only : lhook,   dr_hook, jphook
 
 use config_mod, only : config_type
 
@@ -9,6 +10,11 @@ implicit none
 
 ! arguments
 type(config_type), intent(inout) :: config
+
+! local variables
+real(kind=jphook) :: zhook_handle, zhook_handle_t
+
+if (lhook) call DR_HOOK('eztrans_end',0,zhook_handle)
 
 ! deallocations
 deallocate(config%nx_l)
@@ -33,5 +39,7 @@ deallocate(config%jproc_m)
 
 ! close output file
 close(unit=20)
+
+if (lhook) call DR_HOOK('eztrans_end',1,zhook_handle)
 
 end subroutine eztrans_end

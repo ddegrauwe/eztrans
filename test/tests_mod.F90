@@ -256,7 +256,7 @@ use omp_lib
 use yomhook   ,only : lhook,   dr_hook, jphook
 
 integer :: i
-real(kind=jphook) :: zhook_handle, zhook_handle1
+real(kind=jphook) :: zhook_handle, zhook_handle_t
 real :: x(100,100)
 
 write (*,*) '-------------------'
@@ -264,12 +264,12 @@ write (*,*)
 write (*,*) 'Running test_drhook'
 
 if (lhook) call DR_HOOK('test_drhook',0,zhook_handle)
-!$omp parallel do private(x,zhook_handle1)
+!$omp parallel do private(x,zhook_handle_t)
 do i=1,50
-  if (lhook) call DR_HOOK('test_drhook_1',0,zhook_handle1)
+  if (lhook) call DR_HOOK('test_drhook_1',0,zhook_handle_t)
   call random_number(x)
   x=exp(x)
-  if (lhook) call DR_HOOK('test_drhook_1',1,zhook_handle1)
+  if (lhook) call DR_HOOK('test_drhook_1',1,zhook_handle_t)
 enddo
 !$omp end parallel do
 if (lhook) call DR_HOOK('test_drhook',1,zhook_handle)

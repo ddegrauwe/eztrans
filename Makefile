@@ -3,10 +3,10 @@ all: libeztrans programs test
 libeztrans:
 	make -C src/
 
-programs: libeztrans
+programs: src/libeztrans.a
 	make -C programs/
 
-test: libeztrans
+test: src/libeztrans.a
 	make -C test/
 
 clean:
