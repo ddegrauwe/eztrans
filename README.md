@@ -26,9 +26,10 @@ make install
 ```
 
 ## TODO:
+* Note: test_fftw2d clearly shows that fftw transforms in the leading dimension are much more efficient than along the second dimension, even when using batched FFTs. (seems like the cost of transposing, then doing x-transform, then transposing back is about the same as a batched y-transform) Therefore it's probably better to already organize data with y as the leading dimension in trltom. Also because this makes batched transforms (when porting to GPUs this will become more important) possible.
 * introduce FFTs
 * improve performance on OpenMP (and possibly OpenACC) by making sure that different threads (i.e. outer loops in filling send/recv buffers) *write* to different memory regions, rather than reading from different memory regions
-* introduce profiling with drhook
-* introduce unit tests for MPI_alltoallv, FFT, individual transpositions
+* introduce unit tests for MPI_alltoallv, individual transpositions
 * check performance
 * if performance is promising, introduce derivatives, uvtovd. This will require to dynamically change nfld. Note that not all fields need to go to S space: if only derivatives are needed, L-space is sufficient.
+* add zeros on truncated parts of spectrum (or just initialize to zero before unpacking buffer?)

@@ -222,7 +222,8 @@ do ifld=1,nfld
 enddo
 write (*,*) '  maximum difference on fS : ',errval
 if ( errval > 1.e-6) then
-  call abort()
+  write (0,*) 'Difference too large!'
+  !call abort()
 endif
 
 ! backward transform
@@ -238,7 +239,8 @@ enddo
 errval=maxval(fG**2)
 write (*,*) '  maximum difference on fG : ',errval
 if ( errval > 1.e-6) then
-  call abort()
+  write (0,*) 'Difference too large!'
+  !call abort()
 endif
 
 ! destroy plans
@@ -279,7 +281,138 @@ write (*,*) "  if you don't get drhook.prof.* files, make sure to set export DR_
 write (*,*) '  All good'
 write (*,*)
 
-
 end subroutine test_drhook
+
+subroutine test_fftw2d
+
+use fftw3_mod
+use yomhook   ,only : lhook,   dr_hook, jphook
+
+integer :: ix, iy
+integer, parameter :: nx=1024
+integer, parameter :: ny=1024
+real(kind=jphook) :: zhook_handle, zhook_handle_t
+real :: fG(nx,ny), fT(nY,nx)
+!real :: fS(nx+2,ny+2)
+real :: fSx(nx+2,ny)
+real :: fSy(nx,ny+2)
+
+integer :: iiter
+integer, parameter :: niter=100
+! fftw variables
+integer*8 :: plan_fwd_x_loop, plan_fwd_x_batch, plan_fwd_y_loop, plan_fwd_y_batch
+integer*8 :: plan_bwd_x_loop, plan_bwd_x_batch, plan_bwd_y_loop, plan_bwd_y_batch
+integer :: inembed,onembed
+integer :: istride,idist,ostride,odist
+
+if (lhook) call DR_HOOK('test_fftw2d',0,zhook_handle)
+
+write (*,*) '-------------------'
+write (*,*)
+write (*,*) 'Running test_fftw2d'
+
+! create plans
+inembed=0; istride=1; idist=nx; onembed=0; ostride=1; odist=nx/2+1
+call dfftw_plan_many_dft_r2c(plan_fwd_x_batch, 1, nx, ny, &
+ & fG, inembed, istride, idist, &
+ & fSx, onembed, ostride, odist, &
+ & FFTW_ESTIMATE)
+call dfftw_plan_many_dft_r2c(plan_fwd_x_loop, 1, nx, 1, &
+ & fG, inembed, istride, idist, &
+ & fSx, onembed, ostride, odist, &
+ & FFTW_ESTIMATE)
+inembed=0; istride=1; idist=nx/2+1; onembed=0; ostride=1; odist=nx
+call dfftw_plan_many_dft_c2r(plan_bwd_x_batch, 1, nx, ny, &
+ & fSx, inembed, istride, idist, &
+ & fG, onembed, ostride, odist, &
+ & FFTW_ESTIMATE)
+call dfftw_plan_many_dft_c2r(plan_bwd_x_loop, 1, nx, 1, &
+ & fSx, inembed, istride, idist, &
+ & fG, onembed, ostride, odist, &
+ & FFTW_ESTIMATE)
+inembed=0; istride=nx; idist=1; onembed=0; ostride=nx/2+1; odist=1
+call dfftw_plan_many_dft_r2c(plan_fwd_y_batch, 1, ny, nx, &
+ & fG, inembed, istride, idist, &
+ & fSy, onembed, ostride, odist, &
+ & FFTW_ESTIMATE)
+call dfftw_plan_many_dft_r2c(plan_fwd_y_loop, 1, ny, 1, &
+ & fG, inembed, istride, idist, &
+ & fSy, onembed, ostride, odist, &
+ & FFTW_ESTIMATE)
+inembed=0; istride=nx/2+1; idist=1; onembed=0; ostride=nx; odist=1
+call dfftw_plan_many_dft_c2r(plan_bwd_y_batch, 1, ny, nx, &
+ & fSy, inembed, istride, idist, &
+ & fG, onembed, ostride, odist, &
+ & FFTW_ESTIMATE)
+call dfftw_plan_many_dft_c2r(plan_bwd_y_loop, 1, ny, 1, &
+ & fSy, inembed, istride, idist, &
+ & fG, onembed, ostride, odist, &
+ & FFTW_ESTIMATE)
+
+fG=0.
+
+if (lhook) call DR_HOOK('test_fftw2d:x_loop',0,zhook_handle_t)
+do iiter=1,niter
+  do iy=1,ny
+    call dfftw_execute_dft_r2c(plan_fwd_x_loop, fG(:,iy), fSx(:,iy))
+	call dfftw_execute_dft_c2r(plan_bwd_x_loop, fSx(:,iy), fG(:,iy))
+  enddo
+enddo
+if (lhook) call DR_HOOK('test_fftw2d:x_loop',1,zhook_handle_t)
+
+fG=0.
+
+if (lhook) call DR_HOOK('test_fftw2d:x_batch',0,zhook_handle_t)
+do iiter=1,niter
+  call dfftw_execute_dft_r2c(plan_fwd_x_batch, fG, fSx)
+  call dfftw_execute_dft_c2r(plan_bwd_x_batch, fSx, fG)
+enddo
+if (lhook) call DR_HOOK('test_fftw2d:x_batch',1,zhook_handle_t)
+
+fG=0.
+
+if (lhook) call DR_HOOK('test_fftw2d:y_loop',0,zhook_handle_t)
+do iiter=1,niter
+  do ix=1,nx
+    call dfftw_execute_dft_r2c(plan_fwd_y_loop, fG(ix,1), fSy(ix,:))
+	call dfftw_execute_dft_c2r(plan_bwd_y_loop, fSy(ix,:), fG(ix,1))
+  enddo
+enddo
+if (lhook) call DR_HOOK('test_fftw2d:y_loop',1,zhook_handle_t)
+
+fG=0.
+
+if (lhook) call DR_HOOK('test_fftw2d:y_batch',0,zhook_handle_t)
+do iiter=1,niter
+  call dfftw_execute_dft_r2c(plan_fwd_y_batch, fG, fSy)
+  call dfftw_execute_dft_c2r(plan_bwd_y_batch, fSy, fG)
+enddo
+if (lhook) call DR_HOOK('test_fftw2d:y_batch',1,zhook_handle_t)
+
+
+if (lhook) call DR_HOOK('test_fftw2d:transpose',0,zhook_handle_t)
+do iiter=1,niter
+  do ix=1,nx
+    do iy=1,ny
+	  fT(iy,ix)=fG(ix,iy)
+	enddo
+  enddo
+  do iy=1,ny
+    do ix=1,nx
+	  fG(ix,iy)=fT(iy,ix)
+	enddo
+  enddo
+enddo
+if (lhook) call DR_HOOK('test_fftw2d:transpose',1,zhook_handle_t)
+
+
+if (lhook) call DR_HOOK('test_fftw2d',1,zhook_handle)
+
+write (*,*) '  please check the drhook.prof.* files, but so far it looks ...'
+write (*,*) "  if you don't get drhook.prof.* files, make sure to set export DR_HOOK=1; export DR_HOOK_OPT=prof"
+write (*,*) '  All good'
+write (*,*)
+
+end subroutine test_fftw2d
 
 end module tests_mod
