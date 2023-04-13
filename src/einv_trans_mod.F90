@@ -19,7 +19,7 @@ subroutine einv_trans(config,fM,fG)
 
 ! arguments
 type(config_type), intent(in) :: config
-real, intent(in)  :: fM(config%my_mx_l,config%ny+2,config%my_nfld_l)
+real, intent(in)  :: fM(config%ny+2,config%my_mx_l,config%my_nfld_l)
 real, intent(out) :: fG(config%my_nx_l,config%my_ny_l,config%nfld)
 
 ! local variables
@@ -36,11 +36,11 @@ do jfld=1,config%my_nfld_l
   do jx=1,config%my_mx_l
     if (lhook) call DR_HOOK('einv_trans:fft_y',0,zhook_handle_t)
 #ifdef USE_FFTW
-    call dfftw_execute_dft_c2r(config%plan_bwd_single_y, fM(jx,:,jfld), fM(jx,:,jfld))
+    call dfftw_execute_dft_c2r(config%plan_bwd_single_y, fM(:,jx,jfld), fM(:,jx,jfld))
 #endif
 #ifdef USE_FFT992
 	! FFT992(A,TRIGS,IFAX,INC,JUMP,N,LOT,ISIGN)
-    call fft992(fM(jx,1,jfld),config%trigy,config%facy,1,1,config%ny,1,1)   ! jump is wrong for batched setup
+	call fft992(fM(1,jx,jfld),config%trigy,config%facy,1,1,config%ny,1,1)
 #endif
     if (lhook) call DR_HOOK('einv_trans:fft_y',1,zhook_handle_t)
   enddo

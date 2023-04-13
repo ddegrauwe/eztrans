@@ -18,7 +18,7 @@ subroutine trltom(config,fL,fM)
 ! arguments
 type(config_type), intent(in) :: config
 real, intent(in)  :: fL(config%nx+2,config%my_ny_l,config%my_nfld_l)
-real, intent(out) :: fM(config%my_mx_l,config%ny+2,config%my_nfld_l)
+real, intent(out) :: fM(config%ny+2,config%my_mx_l,config%my_nfld_l)
 
 
 ! local variables
@@ -81,7 +81,7 @@ do jproc=1,config%nproc_B
   do jfld=1,config%my_nfld_l
     offset=recvdispls(jproc)+(jfld-1)*config%ny_l(jproc)*config%my_mx_l
     do jy=config%jyi_l(jproc),config%jye_l(jproc)
-	  fM(1:config%my_mx_l,jy,jfld)=recv_buffer(offset+1:offset+config%my_mx_l)
+	  fM(jy,1:config%my_mx_l,jfld)=recv_buffer(offset+1:offset+config%my_mx_l)
 	  offset=offset+config%my_mx_l
 	enddo
   enddo

@@ -17,7 +17,7 @@ subroutine trmtol(config,fM,fL)
 
 ! arguments
 type(config_type), intent(in) :: config
-real, intent(in)  :: fM(config%my_mx_l,config%ny+2,config%my_nfld_l)
+real, intent(in)  :: fM(config%ny+2,config%my_mx_l,config%my_nfld_l)
 real, intent(out) :: fL(config%mx,config%my_ny_l,config%my_nfld_l)
 
 
@@ -59,7 +59,7 @@ do jproc=1,config%nproc_B
   do jfld=1,config%my_nfld_l
     offset=senddispls(jproc)+(jfld-1)*config%ny_l(jproc)*config%my_mx_l
     do jy=config%jyi_l(jproc),config%jye_l(jproc)
-	  send_buffer(offset+1:offset+config%my_mx_l)=fM(1:config%my_mx_l,jy,jfld)
+	  send_buffer(offset+1:offset+config%my_mx_l)=fM(jy,1:config%my_mx_l,jfld)
 	  offset=offset+config%my_mx_l
 	enddo
   enddo

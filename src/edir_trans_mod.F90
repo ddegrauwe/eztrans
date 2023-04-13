@@ -20,7 +20,7 @@ subroutine edir_trans(config,fG,fM)
 ! arguments
 type(config_type), intent(in) :: config
 real, intent(in)  :: fG(config%my_nx_l,config%my_ny_l,config%nfld)
-real, intent(out) :: fM(config%my_mx_l,config%my,config%my_nfld_l)
+real, intent(out) :: fM(config%ny+2,config%my_mx_l,config%my_nfld_l)
 
 ! local variables
 real :: fL(config%nx+2,config%my_ny_l,config%my_nfld_l)
@@ -59,11 +59,11 @@ do jfld=1,config%my_nfld_l
   do jx=1,config%my_mx_l
     if (lhook) call DR_HOOK('edir_trans:fft_y',0,zhook_handle_t)
 #ifdef USE_FFTW
-    call dfftw_execute_dft_r2c(config%plan_fwd_single_y, fM(jx,:,jfld), fM(jx,:,jfld))
+    call dfftw_execute_dft_r2c(config%plan_fwd_single_y, fM(:,jx,jfld), fM(:,jx,jfld))
 #endif
 #ifdef USE_FFT992
     ! FFT992(A,TRIGS,IFAX,INC,JUMP,N,LOT,ISIGN)
-    call fft992(fM(jx,1,jfld),config%trigy,config%facy,config%my_mx_l,1,config%ny,1,-1)
+	call fft992(fM(1,jx,jfld),config%trigy,config%facy,1,1,config%ny,1,-1)
 #endif
     if (lhook) call DR_HOOK('edir_trans:fft_y',1,zhook_handle_t)
   enddo
