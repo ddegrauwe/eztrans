@@ -25,7 +25,7 @@ mx=1202; my=802; call test_ellips(mx,my)
 #ifdef TEST_FFTW
 ! fftw test
 call test_fftw(nx=128,nfld=20)
-call test_fftw_batch(nx=1024,nfld=1024)
+call test_fftw_batch(nx=1536,nfld=1536)
 #endif
 
 #ifdef TEST_DRHOOK

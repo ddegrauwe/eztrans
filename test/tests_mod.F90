@@ -297,6 +297,8 @@ real :: ftemp(ny+2)
 !real :: fS(nx+2,ny+2)
 real :: fSx(nx+2,ny)
 real :: fSy(nx,ny+2)
+real :: trigsx(nx),trigsy(nx)
+integer :: ifaxx(10), ifaxy(10)
 
 integer :: iiter
 integer, parameter :: niter=100
@@ -305,6 +307,9 @@ integer*8 :: plan_fwd_x_loop, plan_fwd_x_batch, plan_fwd_y_loop, plan_fwd_y_batc
 integer*8 :: plan_bwd_x_loop, plan_bwd_x_batch, plan_bwd_y_loop, plan_bwd_y_batch
 integer :: inembed,onembed
 integer :: istride,idist,ostride,odist
+! fft992 variables
+integer :: jbatch, lot
+integer, parameter :: batch_size=1024
 
 if (lhook) call DR_HOOK('test_fftw2d',0,zhook_handle)
 
@@ -377,8 +382,8 @@ do iiter=1,niter
   do ix=1,nx
     
     call dfftw_execute_dft_r2c(plan_fwd_y_loop, fG(ix,1), ftemp)
-	fSy(ix,:)=ftemp
-	ftemp=fSy(ix,:)
+	!fSy(ix,:)=ftemp
+	!ftemp=fSy(ix,:)
 	call dfftw_execute_dft_c2r(plan_bwd_y_loop, ftemp, fG(ix,1))
   enddo
 enddo
@@ -408,6 +413,37 @@ do iiter=1,niter
   enddo
 enddo
 if (lhook) call DR_HOOK('test_fftw2d:transpose',1,zhook_handle_t)
+
+call set99b(trigsx,ifaxx,nx)
+fSx(1:nx,1:ny)=fG
+if (lhook) call DR_HOOK('test_fftw2d:fft992_x',0,zhook_handle_t)
+do iiter=1,niter
+  ! SUBROUTINE FFT992(A,TRIGS,IFAX,INC,JUMP,N,LOT,ISIGN)
+  do jbatch=1,ny,batch_size
+    lot=min(jbatch+batch_size,ny+1)-jbatch
+	!write (*,*) 'lot = ',lot
+    call fft992(fSx(1,jbatch),trigsx,ifaxx,1,nx+2,nx,lot,-1)
+    call fft992(fSx(1,jbatch),trigsx,ifaxx,1,nx+2,nx,lot,1)
+  enddo
+enddo
+if (lhook) call DR_HOOK('test_fftw2d:fft992_x',1,zhook_handle_t)
+fG=fSx(1:nx,1:ny)
+
+
+call set99b(trigsy,ifaxy,ny)
+if (lhook) call DR_HOOK('test_fftw2d:fft992_y',0,zhook_handle_t)
+fSy(1:nx,1:ny)=fG
+do iiter=1,niter
+  ! SUBROUTINE FFT992(A,TRIGS,IFAX,INC,JUMP,N,LOT,ISIGN)
+  do jbatch=1,nx,batch_size
+    lot=min(jbatch+batch_size,nx+1)-jbatch
+    !write (*,*) 'lot = ',lot
+    call fft992(fSy(jbatch,1),trigsy,ifaxy,nx,1,ny,lot,-1)
+    call fft992(fSy(jbatch,1),trigsy,ifaxy,nx,1,ny,lot,1)
+  enddo
+enddo
+if (lhook) call DR_HOOK('test_fftw2d:fft992_y',1,zhook_handle_t)
+fG=fSy(1:nx,1:ny)
 
 
 if (lhook) call DR_HOOK('test_fftw2d',1,zhook_handle)

@@ -28,6 +28,8 @@ integer :: nWM
 integer :: kx_i, kx_e
 character(len=1024) :: filename
 real :: fG(1), fS(1)  ! for creating fftw plans
+logical :: llok
+
 real(kind=jphook) :: zhook_handle, zhook_handle_t
 
 if (lhook) call DR_HOOK('eztrans_setup',0,zhook_handle)
@@ -203,11 +205,14 @@ call dfftw_plan_dft_c2r_1d(config%plan_bwd_single_x,nx,fS,fG,FFTW_MEASURE)
 call dfftw_plan_dft_r2c_1d(config%plan_fwd_single_y,ny,fG,fS,FFTW_MEASURE)
 call dfftw_plan_dft_c2r_1d(config%plan_bwd_single_y,ny,fS,fG,FFTW_MEASURE)
 
-!write (20,*) '  ex     = ',config%ex
-!write (20,*) '  ey     = ',config%ey
-!write (20,'(X,A,9999I4)') '  kx_m   = ',config%kx_m(1:config%my_nm_l:4)
-!write (20,'(X,A,9999I4)') '  ky_m   = ',config%ky_m(1:config%my_nm_l:4)
-!write (20,'(X,A,9999I4)') '  jproc_m   = ',config%jproc_m(1:config%my_nm_l:4)
+! fft992 setup
+allocate(config%trigx(config%nx))
+allocate(config%facx(20))
+allocate(config%trigy(config%ny))
+allocate(config%facy(20))
+
+call set99b(config%trigx,config%facx,config%nx,llok)
+call set99b(config%trigy,config%facy,config%ny,llok)
 
 call flush(20)
 

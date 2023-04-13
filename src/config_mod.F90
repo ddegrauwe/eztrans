@@ -73,6 +73,12 @@ type config_type
   integer*8 :: plan_fwd_single_y
   integer*8 :: plan_bwd_single_y
   
+  ! fft992 data
+  real, pointer :: trigx(:)
+  integer, pointer :: facx(:)
+  real, pointer :: trigy(:)
+  integer, pointer :: facy(:)
+  
   ! MPI groups
   integer :: mpi_comm_A
   integer :: mpi_comm_B

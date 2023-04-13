@@ -37,6 +37,11 @@ deallocate(config%kx_m)
 deallocate(config%ky_m)
 deallocate(config%jproc_m)
 
+deallocate(config%trigx)
+deallocate(config%facx)
+deallocate(config%trigy)
+deallocate(config%facy)
+
 ! close output file
 close(unit=20)
 

@@ -17,8 +17,8 @@ subroutine trltog(config,fL,fG)
 
 ! arguments
 type(config_type), intent(in) :: config
-real, intent(in)  :: fL(:,:,:)  ! (config%nx,config%my_ny_l,config%my_nfld_l)
-real, intent(out) :: fG(:,:,:)  ! (config%my_nx_l,config%my_ny_l,config%nfld)
+real, intent(in)  :: fL(config%nx+2,config%my_ny_l,config%my_nfld_l)
+real, intent(out) :: fG(config%my_nx_l,config%my_ny_l,config%nfld)
 
 
 ! local variables
@@ -53,7 +53,7 @@ enddo
 
 ! pack send buffer
 !$OMP PARALLEL PRIVATE(jproc,jfld,offset,jy,zhook_handle_t)
-if (lhook) call DR_HOOK('trltog:send_buffer',0,zhook_handle_t)
+if (lhook) call DR_HOOK('trltog:pack',0,zhook_handle_t)
 !$OMP DO COLLAPSE(2)
 do jproc=1,config%nproc_A
   do jfld=1,config%my_nfld_l
@@ -65,12 +65,12 @@ do jproc=1,config%nproc_A
   enddo
 enddo
 !$OMP END DO
-if (lhook) call DR_HOOK('trltog:send_buffer',1,zhook_handle_t)
+if (lhook) call DR_HOOK('trltog:pack',1,zhook_handle_t)
 !$OMP END PARALLEL
 
 ! communications
-call mpi_alltoallv(send_buffer, sendcounts, senddispls, MPI_FLOAT, &
- & fG, recvcounts, recvdispls, MPI_FLOAT, &
+call mpi_alltoallv(send_buffer, sendcounts, senddispls, MPI_DOUBLE_PRECISION, &
+ & fG, recvcounts, recvdispls, MPI_DOUBLE_PRECISION, &
  & config%mpi_comm_A, ierr)
  
 ! no need to unpack recv buffer: written directly to fG

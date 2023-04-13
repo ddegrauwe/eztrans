@@ -17,8 +17,8 @@ subroutine trmtol(config,fM,fL)
 
 ! arguments
 type(config_type), intent(in) :: config
-real, intent(in)  :: fM(:,:,:)   ! (config%my_mx_l,config%ny,config%my_nfld_l)
-real, intent(out) :: fL(:,:,:)   ! (config%mx,config%my_ny_l,config%my_nfld_l)
+real, intent(in)  :: fM(config%my_mx_l,config%ny+2,config%my_nfld_l)
+real, intent(out) :: fL(config%mx,config%my_ny_l,config%my_nfld_l)
 
 
 ! local variables
@@ -53,7 +53,7 @@ enddo
 
 ! pack send buffer
 !$OMP PARALLEL PRIVATE(jproc,jfld,offset,jy,zhook_handle_t) 
-if (lhook) call DR_HOOK('trmtol:send_buffer',0,zhook_handle_t)
+if (lhook) call DR_HOOK('trmtol:pack',0,zhook_handle_t)
 !$OMP DO COLLAPSE(2)
 do jproc=1,config%nproc_B
   do jfld=1,config%my_nfld_l
@@ -65,18 +65,17 @@ do jproc=1,config%nproc_B
   enddo
 enddo
 !$OMP END DO
-if (lhook) call DR_HOOK('trmtol:send_buffer',1,zhook_handle_t)
+if (lhook) call DR_HOOK('trmtol:pack',1,zhook_handle_t)
 !$OMP END PARALLEL
 
 ! communications
-call mpi_alltoallv(send_buffer, sendcounts, senddispls, MPI_FLOAT, &
- & recv_buffer, recvcounts, recvdispls, MPI_FLOAT, &
+call mpi_alltoallv(send_buffer, sendcounts, senddispls, MPI_DOUBLE_PRECISION, &
+ & recv_buffer, recvcounts, recvdispls, MPI_DOUBLE_PRECISION, &
  & config%mpi_comm_B, ierr)
 
 ! unpack recv buffer
-fL(:,:,:)=0.
 !$OMP PARALLEL PRIVATE(jproc,jfld,offset,jy,zhook_handle_t)
-if (lhook) call DR_HOOK('trmtol:recv_buffer',0,zhook_handle_t)
+if (lhook) call DR_HOOK('trmtol:unpack',0,zhook_handle_t)
 !$OMP DO COLLAPSE(2)
 do jproc=1,config%nproc_B
   do jfld=1,config%my_nfld_l
@@ -88,7 +87,7 @@ do jproc=1,config%nproc_B
   enddo
 enddo
 !$OMP END DO
-if (lhook) call DR_HOOK('trmtol:recv_buffer',1,zhook_handle_t)
+if (lhook) call DR_HOOK('trmtol:unpack',1,zhook_handle_t)
 !$OMP END PARALLEL
 
 if (lhook) call DR_HOOK('trmtol',1,zhook_handle)

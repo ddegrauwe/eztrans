@@ -7,18 +7,16 @@ use config_mod, only: config_type
 
 implicit none
 
-
 contains
 
 subroutine trgtol(config,fG,fL)
-
 
 ! transpose from G-space (z-pencils) to L-space (x-pencils)
 
 ! arguments
 type(config_type), intent(in) :: config
-real, intent(in)  :: fG(:,:,:)  ! (config%my_nx_l,config%my_ny_l,config%nfld)
-real, intent(out) :: fL(:,:,:) ! (config%nx,config%my_ny_l,config%my_nfld_l)
+real, intent(in)  :: fG(config%my_nx_l,config%my_ny_l,config%nfld)
+real, intent(out) :: fL(config%nx+2,config%my_ny_l,config%my_nfld_l)
 
 ! local variables
 !real :: send_buffer(config%nx_l*config%ny_l*config%nfld)   ! fG can be used as send buffer directly
@@ -51,13 +49,13 @@ do jproc=2,config%nproc_A
 enddo
 
 ! communications
-call mpi_alltoallv(fG, sendcounts, senddispls, MPI_FLOAT, &
- & recv_buffer, recvcounts, recvdispls, MPI_FLOAT, &
+call mpi_alltoallv(fG, sendcounts, senddispls, MPI_DOUBLE_PRECISION, &
+ & recv_buffer, recvcounts, recvdispls, MPI_DOUBLE_PRECISION, &
  & config%mpi_comm_A, ierr)
  
 ! unpack recv buffer
 !$OMP PARALLEL PRIVATE(jproc,jfld,offset,jy,zhook_handle_t)
-if (lhook) call DR_HOOK('trgtol:recv_buffer',0,zhook_handle_t)
+if (lhook) call DR_HOOK('trgtol:unpack',0,zhook_handle_t)
 !$OMP DO COLLAPSE(2)
 do jproc=1,config%nproc_A
   do jfld=1,config%my_nfld_l
@@ -69,7 +67,7 @@ do jproc=1,config%nproc_A
   enddo
 enddo
 !$OMP END DO
-if (lhook) call DR_HOOK('trgtol:recv_buffer',1,zhook_handle_t)
+if (lhook) call DR_HOOK('trgtol:unpack',1,zhook_handle_t)
 !$OMP END PARALLEL
 
 if (lhook) call DR_HOOK('trgtol',1,zhook_handle)

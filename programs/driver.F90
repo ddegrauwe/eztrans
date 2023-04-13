@@ -21,18 +21,18 @@ call mpi_init(ierr)
 
 if (lhook) call DR_HOOK('driver',0,zhook_handle)
 
-nx=1536
-ny=1152
-nfld=20
-niter=20
-nproc_A=4
-nproc_B=4
+nx=128
+ny=128
+nfld=10
+niter=10
+nproc_A=1
+nproc_B=1
 truncation_order=1
 
 call eztrans_setup(config,nx,ny,nfld,nproc_A,nproc_B,truncation_order)
 
 allocate(fG(config%my_nx_l,config%my_ny_l,config%nfld))
-allocate(fM(config%my_mx_l,config%my,config%my_nfld_l))
+allocate(fM(config%my_mx_l,config%ny+2,config%my_nfld_l))
 fG=0.
 fM=0.
 
