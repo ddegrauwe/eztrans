@@ -67,6 +67,12 @@ type config_type
   !integer, pointer :: my_kx(:)   ! x-wavenumbers
   !integer, pointer :: my_ky(:)   ! y-wavenumbers
   
+  ! fftw plans
+  integer*8 :: plan_fwd_single_x
+  integer*8 :: plan_bwd_single_x
+  integer*8 :: plan_fwd_single_y
+  integer*8 :: plan_bwd_single_y
+  
   ! MPI groups
   integer :: mpi_comm_A
   integer :: mpi_comm_B

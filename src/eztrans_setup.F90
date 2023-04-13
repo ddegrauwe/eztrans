@@ -27,6 +27,7 @@ integer :: jx, jy, jj, jproc, jj_l
 integer :: nWM
 integer :: kx_i, kx_e
 character(len=1024) :: filename
+real :: fG(1), fS(1)  ! for creating fftw plans
 real(kind=jphook) :: zhook_handle, zhook_handle_t
 
 if (lhook) call DR_HOOK('eztrans_setup',0,zhook_handle)
@@ -195,6 +196,12 @@ endif
 ! define MPI groups
 call MPI_Comm_split(MPI_COMM_WORLD, config%my_proc_B, config%my_proc_A, config%mpi_comm_A, ierr);
 call MPI_Comm_split(MPI_COMM_WORLD, config%my_proc_A, config%my_proc_B, config%mpi_comm_B, ierr);
+
+! fftw setup
+call dfftw_plan_dft_r2c_1d(config%plan_fwd_single_x,nx,fG,fS,FFTW_MEASURE)
+call dfftw_plan_dft_c2r_1d(config%plan_bwd_single_x,nx,fS,fG,FFTW_MEASURE)
+call dfftw_plan_dft_r2c_1d(config%plan_fwd_single_y,ny,fG,fS,FFTW_MEASURE)
+call dfftw_plan_dft_c2r_1d(config%plan_bwd_single_y,ny,fS,fG,FFTW_MEASURE)
 
 !write (20,*) '  ex     = ',config%ex
 !write (20,*) '  ey     = ',config%ey

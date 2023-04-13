@@ -53,7 +53,7 @@ enddo
 
 ! pack send buffer
 !$OMP PARALLEL PRIVATE(jproc,jfld,offset,jy,zhook_handle_t)
-if (lhook) call DR_HOOK('trltom:send_buffer',0,zhook_handle_t)
+if (lhook) call DR_HOOK('trltom:pack',0,zhook_handle_t)
 !$OMP DO COLLAPSE(2)
 do jproc=1,config%nproc_B
   do jfld=1,config%my_nfld_l
@@ -65,7 +65,7 @@ do jproc=1,config%nproc_B
   enddo
 enddo
 !$OMP END DO
-if (lhook) call DR_HOOK('trltom:send_buffer',1,zhook_handle_t)
+if (lhook) call DR_HOOK('trltom:pack',1,zhook_handle_t)
 !$OMP END PARALLEL
 
 ! communications

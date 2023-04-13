@@ -1,6 +1,6 @@
 include ../Makefile.lumi.in
 
-OBJS=aux_mod.o fftw3_mod.o config_mod.o trgtol_mod.o trltog_mod.o trltom_mod.o trmtol_mod.o trmtos_mod.o trstom_mod.o eztrans_setup.o eztrans_end.o
+OBJS=aux_mod.o fftw3_mod.o config_mod.o trgtol_mod.o trltog_mod.o trltom_mod.o trmtol_mod.o trmtos_mod.o trstom_mod.o edir_trans_mod.o einv_trans_mod.o eztrans_setup.o eztrans_end.o
 
 all: libeztrans.a
 
@@ -16,7 +16,7 @@ trltom_mod.mod: config_mod.mod trltom_mod.o
 trmtol_mod.mod: config_mod.mod trmtol_mod.o
 trmtos_mod.mod: config_mod.mod trmtos_mod.o
 trstom_mod.mod: config_mod.mod trstom_mod.o
-
+edir_trans_mod.mod: config_mod.mod trgtol_mod.mod trltom_mod.mod edir_trans_mod.o
 %.o: %.F90
 	$(FC) $(FOPTS) $(INCS) -c $?
 

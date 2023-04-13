@@ -293,6 +293,7 @@ integer, parameter :: nx=1024
 integer, parameter :: ny=1024
 real(kind=jphook) :: zhook_handle, zhook_handle_t
 real :: fG(nx,ny), fT(nY,nx)
+real :: ftemp(ny+2)
 !real :: fS(nx+2,ny+2)
 real :: fSx(nx+2,ny)
 real :: fSy(nx,ny+2)
@@ -354,8 +355,8 @@ fG=0.
 if (lhook) call DR_HOOK('test_fftw2d:x_loop',0,zhook_handle_t)
 do iiter=1,niter
   do iy=1,ny
-    call dfftw_execute_dft_r2c(plan_fwd_x_loop, fG(:,iy), fSx(:,iy))
-	call dfftw_execute_dft_c2r(plan_bwd_x_loop, fSx(:,iy), fG(:,iy))
+    call dfftw_execute_dft_r2c(plan_fwd_x_loop, fG(1,iy), fSx(1,iy))
+	call dfftw_execute_dft_c2r(plan_bwd_x_loop, fSx(1,iy), fG(1,iy))
   enddo
 enddo
 if (lhook) call DR_HOOK('test_fftw2d:x_loop',1,zhook_handle_t)
@@ -374,8 +375,11 @@ fG=0.
 if (lhook) call DR_HOOK('test_fftw2d:y_loop',0,zhook_handle_t)
 do iiter=1,niter
   do ix=1,nx
-    call dfftw_execute_dft_r2c(plan_fwd_y_loop, fG(ix,1), fSy(ix,:))
-	call dfftw_execute_dft_c2r(plan_bwd_y_loop, fSy(ix,:), fG(ix,1))
+    
+    call dfftw_execute_dft_r2c(plan_fwd_y_loop, fG(ix,1), ftemp)
+	fSy(ix,:)=ftemp
+	ftemp=fSy(ix,:)
+	call dfftw_execute_dft_c2r(plan_bwd_y_loop, ftemp, fG(ix,1))
   enddo
 enddo
 if (lhook) call DR_HOOK('test_fftw2d:y_loop',1,zhook_handle_t)
