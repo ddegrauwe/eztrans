@@ -1,6 +1,6 @@
 # EZTRANS
 
-A mimimal LAM spectral transform package
+A mimimal LAM spectral transform package (obsolete!)
 
 ## Introduction
 
