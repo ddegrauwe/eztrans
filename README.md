@@ -37,5 +37,3 @@ make install
 * add dimension checks (under DEBUG directive)
 * some new feature
 * another feature
-* an awesome feature
-* the final feature
