@@ -36,3 +36,4 @@ make install
 * add zeros on truncated parts of spectrum (or just initialize to zero before unpacking buffer?)
 * add dimension checks (under DEBUG directive)
 new feature 1
+new feature 2
