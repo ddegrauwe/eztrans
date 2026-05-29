@@ -35,7 +35,3 @@ make install
 * if performance is promising, introduce derivatives, uvtovd. This will require to dynamically change nfld. Note that not all fields need to go to S space: if only derivatives are needed, L-space is sufficient.
 * add zeros on truncated parts of spectrum (or just initialize to zero before unpacking buffer?)
 * add dimension checks (under DEBUG directive)
-* some new feature
-* another feature
-* an awesome feature
-* the final feature
