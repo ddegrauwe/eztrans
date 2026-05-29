@@ -38,3 +38,4 @@ make install
 * some new feature
 * another feature
 * an awesome feature
+* the final feature
