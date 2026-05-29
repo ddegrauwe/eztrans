@@ -37,4 +37,5 @@ make install
 * add dimension checks (under DEBUG directive)
 new feature 1
 new feature 2
+new feature 1
 new feature 2
